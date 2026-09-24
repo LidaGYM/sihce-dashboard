@@ -1,11 +1,6 @@
 import Link from "next/link";
 import BrandLayout from "@/components/BrandLayout";
-
-const SECTIONS = [
-  { href: "/modulos/administrativos", label: "Modulos Administrativos" },
-  { href: "/modulos/consulta-externa", label: "Modulos de Consulta Externa" },
-  { href: "/modulos/estrategias", label: "Modulos de Estrategias" },
-];
+import { SECTIONS } from "@/lib/sections";
 
 const buttonClass =
   "flex min-h-[3.5rem] w-64 items-center justify-center rounded-md border border-gray-700 px-4 py-2 text-center text-white uppercase shadow-sm";
@@ -22,9 +17,9 @@ export default function Home() {
             Modulos en General
           </Link>
           <div className="flex flex-wrap gap-6">
-            {SECTIONS.map((s) => (
-              <Link key={s.href} href={s.href} className={`${buttonClass} bg-sihce-button hover:brightness-110`}>
-                {s.label}
+            {Object.entries(SECTIONS).map(([slug, s]) => (
+              <Link key={slug} href={`/modulos/${slug}`} className={`${buttonClass} bg-sihce-button hover:brightness-110`}>
+                {s.title}
               </Link>
             ))}
           </div>

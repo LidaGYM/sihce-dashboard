@@ -7,6 +7,7 @@ interface Props {
   periodo: string;
   categoria: string;
   ipress: string;
+  showIpress?: boolean;
   onChange: (next: { periodo?: string; categoria?: string; ipress?: string }) => void;
 }
 
@@ -21,9 +22,10 @@ function FilterBox({ label, children }: { label: string; children: React.ReactNo
 
 const selectClass = "w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-600";
 
-export default function FilterBar({ filters, periodo, categoria, ipress, onChange }: Props) {
+export default function FilterBar({ filters, periodo, categoria, ipress, showIpress = true, onChange }: Props) {
   return (
     <div className="flex flex-wrap gap-4">
+      {showIpress && (
       <FilterBox label="Ipress calificadas">
         <select className={selectClass} value={ipress} onChange={(e) => onChange({ ipress: e.target.value })}>
           <option value="Todas">Todas</option>
@@ -34,6 +36,7 @@ export default function FilterBar({ filters, periodo, categoria, ipress, onChang
           ))}
         </select>
       </FilterBox>
+      )}
 
       <FilterBox label="Periodo">
         <select className={selectClass} value={periodo} onChange={(e) => onChange({ periodo: e.target.value })}>

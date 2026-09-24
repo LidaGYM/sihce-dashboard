@@ -100,9 +100,7 @@ function buildSummaryRows(rows: RawRow[]): { rows: SummaryRow[]; grandTotal: Sum
           totals,
           totalModulos: totalModulos(totals),
         };
-      })
-      // Igual que el Power BI: primero las IPRESS con mas modulos.
-      .sort((a, b) => b.totalModulos - a.totalModulos || a.label.localeCompare(b.label));
+      });
 
     grandTotals = sumTotals(grandTotals, provTotals);
     grandCount += provRows.length;
@@ -116,9 +114,6 @@ function buildSummaryRows(rows: RawRow[]): { rows: SummaryRow[]; grandTotal: Sum
       children,
     });
   }
-
-  // Primero las provincias con mas IPRESS.
-  provinciaRows.sort((a, b) => b.totalIpress - a.totalIpress || a.label.localeCompare(b.label));
 
   const grandTotal: SummaryRow = {
     key: "TOTAL",
