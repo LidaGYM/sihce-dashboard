@@ -82,8 +82,9 @@ function isEmpty(v: unknown): boolean {
  * columnas "ipress" y "periodo") y la completa con las demas hojas que tengan
  * "cod_ipress" (ej. BASE_INICIO_IMPL). La union es por cod_ipress; si la hoja
  * secundaria trae "periodo_adi", se prefiere la fila cuyo periodo_adi coincide
- * con el periodo de la hoja principal. Los valores de la hoja principal tienen
- * prioridad: la secundaria solo rellena columnas vacias o que no existen.
+ * con el periodo de la hoja principal. Los modulos en uso salen solo de la hoja
+ * principal; los de la secundaria (implementacion) se guardan como referencia
+ * con el nombre de la hoja como prefijo, ej. "base_inicio_impl_mod_citas".
  * Reemplaza por completo los datos existentes (import full-refresh, no incremental).
  */
 export async function importExcelBuffer(buffer: Buffer): Promise<ImportResult> {
@@ -123,10 +124,14 @@ export async function importExcelBuffer(buffer: Buffer): Promise<ImportResult> {
         matches.find((m) => String(m.periodo_adi ?? "").trim() === String(base.periodo).trim()) ?? matches[0];
       const prefix = sheet.name.trim().toLowerCase();
       for (const [k, v] of Object.entries(match)) {
-        // nom_mes describe el periodo de la hoja secundaria, no el de la principal.
-        if (k !== "nom_mes" && isEmpty(record[k])) record[k] = v;
-        // Guardamos el periodo de la hoja secundaria (ej. inicio de implementacion) aparte.
-        if (k === "periodo") record[`${prefix}_periodo`] = v;
+        // Periodo, mes y modulos de la hoja secundaria son solo referenciales (ej. en que
+        // periodo se implemento cada modulo): se guardan aparte y nunca pisan ni rellenan
+        // el uso actual, que viene solo de la hoja principal.
+        if (k === "periodo" || k === "nom_mes" || k === "periodo_adi" || k.startsWith("mod_")) {
+          record[`${prefix}_${k}`] = v;
+        } else if (isEmpty(record[k])) {
+          record[k] = v;
+        }
       }
     }
     rows.push(record);
