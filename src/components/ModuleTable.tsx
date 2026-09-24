@@ -1,18 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { ModuleGroup, modulesByGroup } from "@/lib/modules";
+import { ModuleDef, modulesByGroup } from "@/lib/modules";
 import { SummaryRow } from "@/lib/types";
 
 interface Props {
   rows: SummaryRow[];
   grandTotal: SummaryRow;
-  group: ModuleGroup;
 }
 
-export default function ModuleTable({ rows, grandTotal, group }: Props) {
+const ADMIN = modulesByGroup("administrativo");
+const ASIST = modulesByGroup("asistencial");
+const COLUMNS = [...ADMIN, ...ASIST];
+
+const numCell = "px-2 py-1 text-right tabular-nums";
+
+export default function ModuleTable({ rows, grandTotal }: Props) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const columns = modulesByGroup(group);
 
   const toggle = (key: string) => {
     setExpanded((prev) => {
@@ -24,33 +28,46 @@ export default function ModuleTable({ rows, grandTotal, group }: Props) {
   };
 
   return (
-    <div className="overflow-x-auto rounded-md bg-white shadow-sm">
-      <table className="w-full min-w-[900px] border-collapse text-sm">
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[1150px] table-fixed border-separate border-spacing-0 text-sm">
+        <colgroup>
+          <col className="w-52" />
+          {Array.from({ length: COLUMNS.length + 2 }, (_, i) => (
+            <col key={i} />
+          ))}
+        </colgroup>
         <thead>
-          <tr className="bg-sihce-header text-white">
-            <th className="sticky left-0 z-10 bg-sihce-header px-3 py-2 text-left">Provincia / Ipress</th>
-            <th className="px-3 py-2 text-right">Total Ipress</th>
-            {columns.map((c) => (
-              <th key={c.key} className="px-3 py-2 text-right">
-                {c.label}
-              </th>
+          <tr>
+            <th colSpan={2} />
+            <th colSpan={ADMIN.length} className="px-1 pb-2">
+              <div className="rounded-md border border-gray-500 bg-gray-200 py-2 text-xs font-semibold">
+                Modulos Administrativo
+              </div>
+            </th>
+            <th colSpan={ASIST.length + 1} className="px-1 pb-2">
+              <div className="rounded-md border border-gray-500 bg-gray-200 py-2 text-xs font-semibold">
+                Modulos Asistenciales
+              </div>
+            </th>
+          </tr>
+          <tr className="text-[11px] font-normal leading-tight">
+            <th className="sticky left-0 z-10 w-56 border-y-2 border-l-2 border-sihce-navy bg-white px-3 py-2 text-center font-normal">
+              Provincia / Ipress
+            </th>
+            <HeaderCell label="Total Ipress" />
+            {COLUMNS.map((c) => (
+              <HeaderCell key={c.key} label={c.label} />
             ))}
-            <th className="px-3 py-2 text-right">Modulos SIHCE</th>
+            <HeaderCell label="Modulos SIHCE" last />
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
-            <RowGroup key={row.key} row={row} columns={columns} expanded={expanded} toggle={toggle} />
+            <RowGroup key={row.key} row={row} expanded={expanded} toggle={toggle} />
           ))}
-          <tr className="border-t-2 border-gray-400 bg-gray-100 font-bold">
-            <td className="px-3 py-2">Total</td>
-            <td className="px-3 py-2 text-right">{grandTotal.totalIpress}</td>
-            {columns.map((c) => (
-              <td key={c.key} className="px-3 py-2 text-right">
-                {grandTotal.totals[c.key] ?? 0}
-              </td>
-            ))}
-            <td className="px-3 py-2 text-right">{grandTotal.totalModulos}</td>
+          <tr className="font-bold">
+            <td className="sticky left-0 border-r border-gray-400 bg-white px-3 py-1.5">Total</td>
+            <Cells row={grandTotal} />
           </tr>
         </tbody>
       </table>
@@ -58,14 +75,38 @@ export default function ModuleTable({ rows, grandTotal, group }: Props) {
   );
 }
 
+function HeaderCell({ label, last }: { label: string; last?: boolean }) {
+  return (
+    <th
+      className={`break-words border-y-2 border-l border-sihce-navy px-1 py-2 text-center font-normal ${
+        last ? "border-r-2" : ""
+      }`}
+    >
+      {label}
+    </th>
+  );
+}
+
+function Cells({ row, columns = COLUMNS }: { row: SummaryRow; columns?: ModuleDef[] }) {
+  return (
+    <>
+      <td className={numCell}>{row.totalIpress}</td>
+      {columns.map((c) => (
+        <td key={c.key} className={numCell}>
+          {row.totals[c.key] ?? 0}
+        </td>
+      ))}
+      <td className={numCell}>{row.totalModulos}</td>
+    </>
+  );
+}
+
 function RowGroup({
   row,
-  columns,
   expanded,
   toggle,
 }: {
   row: SummaryRow;
-  columns: ReturnType<typeof modulesByGroup>;
   expanded: Set<string>;
   toggle: (key: string) => void;
 }) {
@@ -75,32 +116,24 @@ function RowGroup({
   return (
     <>
       <tr
-        className={`border-t border-gray-200 ${hasChildren ? "cursor-pointer hover:bg-blue-50" : ""}`}
+        className={`font-bold odd:bg-white even:bg-gray-100 ${hasChildren ? "cursor-pointer hover:bg-blue-50" : ""}`}
         onClick={() => hasChildren && toggle(row.key)}
       >
-        <td className="sticky left-0 bg-white px-3 py-2 font-medium">
-          {hasChildren && <span className="mr-2 inline-block w-3">{isOpen ? "-" : "+"}</span>}
+        <td className="sticky left-0 border-r border-gray-400 bg-inherit px-3 py-1">
+          {hasChildren && (
+            <span className="mr-2 inline-flex h-3 w-3 items-center justify-center border border-gray-500 text-[9px] leading-none text-gray-600">
+              {isOpen ? "−" : "+"}
+            </span>
+          )}
           {row.label}
         </td>
-        <td className="px-3 py-2 text-right">{row.totalIpress}</td>
-        {columns.map((c) => (
-          <td key={c.key} className="px-3 py-2 text-right">
-            {row.totals[c.key] ?? 0}
-          </td>
-        ))}
-        <td className="px-3 py-2 text-right font-semibold">{row.totalModulos}</td>
+        <Cells row={row} />
       </tr>
       {isOpen &&
         row.children?.map((child) => (
-          <tr key={child.key} className="border-t border-gray-100 bg-gray-50 text-gray-700">
-            <td className="sticky left-0 bg-gray-50 py-1.5 pl-10 pr-3">{child.label}</td>
-            <td className="px-3 py-1.5 text-right">{child.totalIpress}</td>
-            {columns.map((c) => (
-              <td key={c.key} className="px-3 py-1.5 text-right">
-                {child.totals[c.key] ?? 0}
-              </td>
-            ))}
-            <td className="px-3 py-1.5 text-right">{child.totalModulos}</td>
+          <tr key={child.key} className="odd:bg-white even:bg-gray-100">
+            <td className="sticky left-0 border-r border-gray-400 bg-inherit py-1 pl-9 pr-3">{child.label}</td>
+            <Cells row={child} />
           </tr>
         ))}
     </>
