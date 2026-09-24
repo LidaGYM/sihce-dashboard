@@ -15,8 +15,16 @@ function normalizeHeader(h: string): string {
 function cellToPrimitive(value: ExcelJS.CellValue): string | number | null {
   if (value === null || value === undefined) return null;
   if (typeof value === "object") {
-    if ("text" in (value as { text?: string })) return (value as { text: string }).text;
     if (value instanceof Date) return value.toISOString();
+    // Celdas con formula: usamos el resultado calculado, no la formula.
+    if ("result" in value || "formula" in value || "sharedFormula" in value) {
+      const result = (value as { result?: ExcelJS.CellValue }).result;
+      if (result && typeof result === "object" && "error" in result) return null;
+      return cellToPrimitive(result ?? null);
+    }
+    if ("richText" in value) return value.richText.map((r) => r.text).join("");
+    if ("text" in value) return cellToPrimitive((value as { text: ExcelJS.CellValue }).text);
+    if ("error" in value) return null;
     return String(value);
   }
   return value as string | number;
@@ -93,7 +101,7 @@ export async function importExcelBuffer(buffer: Buffer): Promise<ImportResult> {
         if (!knownColumns.has(k)) extra[k] = v;
       }
       const values = [
-        ...DIMENSION_COLUMNS.map((c) => record[c] ?? null),
+        ...DIMENSION_COLUMNS.map((c) => (record[c] == null ? null : String(record[c]).trim())),
         ...MODULE_KEYS.map((c) => {
           const v = record[c];
           if (v === null || v === undefined || v === "") return null;
