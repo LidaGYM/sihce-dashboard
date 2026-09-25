@@ -8,7 +8,7 @@ export interface ColumnGroup {
 export interface SectionDef {
   title: string; // texto del boton en la portada
   groups: ColumnGroup[];
-  showIpressFilter: boolean;
+  showCalificadasFilter: boolean;
   showTotalModulos: boolean;
   // "totales": provincias con mas IPRESS primero e IPRESS con mas modulos primero (vista general).
   // "alfabetico": provincias e IPRESS por nombre (vistas por seccion).
@@ -29,7 +29,7 @@ export const GENERAL: SectionDef = {
     { title: "Modulos Administrativo", modules: modulesByGroup("administrativo") },
     { title: "Modulos Asistenciales", modules: modulesByGroup("asistencial") },
   ],
-  showIpressFilter: true,
+  showCalificadasFilter: true,
   showTotalModulos: true,
   order: "totales",
 };
@@ -43,7 +43,7 @@ export const SECTIONS: Record<string, SectionDef> = {
         modules: pick("mod_refcon", "mod_referencias", "mod_gestion", "mod_citas", "mod_fua_electronica"),
       },
     ],
-    showIpressFilter: false,
+    showCalificadasFilter: false,
     showTotalModulos: false,
     order: "alfabetico",
   },
@@ -55,7 +55,7 @@ export const SECTIONS: Record<string, SectionDef> = {
         modules: pick("mod_triaje", "mod_medicina", "mod_odontologia", "mod_psicologia", "mod_nutricion"),
       },
     ],
-    showIpressFilter: false,
+    showCalificadasFilter: false,
     showTotalModulos: false,
     order: "alfabetico",
   },
@@ -75,7 +75,7 @@ export const SECTIONS: Record<string, SectionDef> = {
         ),
       },
     ],
-    showIpressFilter: false,
+    showCalificadasFilter: false,
     showTotalModulos: false,
     order: "alfabetico",
   },

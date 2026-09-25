@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import BrandLayout from "./BrandLayout";
 import FilterBar from "./FilterBar";
 import ModuleTable from "./ModuleTable";
 import { SectionDef } from "@/lib/sections";
-import { FiltersResponse, SummaryResponse } from "@/lib/types";
+import { FiltersResponse, SummaryResponse, SummaryRow } from "@/lib/types";
 
 export default function ModulesView({ section }: { section: SectionDef }) {
   const [filters, setFilters] = useState<FiltersResponse | null>(null);
   const [periodo, setPeriodo] = useState("");
   const [categoria, setCategoria] = useState("Todas");
-  const [ipress, setIpress] = useState("Todas");
+  const [calificadas, setCalificadas] = useState("Todas");
   const [summary, setSummary] = useState<SummaryResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +31,7 @@ export default function ModulesView({ section }: { section: SectionDef }) {
     if (!periodo) return;
     setLoading(true);
     setError(null);
-    const params = new URLSearchParams({ periodo, categoria, ipress });
+    const params = new URLSearchParams({ periodo, categoria });
     fetch(`/api/modules-summary?${params.toString()}`)
       .then((r) => r.json())
       .then((data) => {
@@ -40,7 +40,18 @@ export default function ModulesView({ section }: { section: SectionDef }) {
       })
       .catch((err) => setError(err.message ?? "Error al cargar los datos"))
       .finally(() => setLoading(false));
-  }, [periodo, categoria, ipress]);
+  }, [periodo, categoria]);
+
+  const calificadasOptions = useMemo(() => {
+    const set = new Set<number>();
+    for (const p of summary?.rows ?? []) for (const c of p.children ?? []) set.add(c.totalModulos);
+    return Array.from(set).sort((a, b) => b - a);
+  }, [summary]);
+
+  const view = useMemo(
+    () => (summary ? filterByTotalModulos(summary, calificadas) : null),
+    [summary, calificadas]
+  );
 
   return (
     <BrandLayout subtitle="Detalle de Modulos SIHCE Implementados" backHref="/">
@@ -49,12 +60,13 @@ export default function ModulesView({ section }: { section: SectionDef }) {
           filters={filters}
           periodo={periodo}
           categoria={categoria}
-          ipress={ipress}
-          showIpress={section.showIpressFilter}
+          calificadas={calificadas}
+          calificadasOptions={calificadasOptions}
+          showCalificadas={section.showCalificadasFilter}
           onChange={(next) => {
             if (next.periodo !== undefined) setPeriodo(next.periodo);
             if (next.categoria !== undefined) setCategoria(next.categoria);
-            if (next.ipress !== undefined) setIpress(next.ipress);
+            if (next.calificadas !== undefined) setCalificadas(next.calificadas);
           }}
         />
       </div>
@@ -69,7 +81,7 @@ export default function ModulesView({ section }: { section: SectionDef }) {
 
       {loading && !error && <div className="p-4 text-sm text-gray-500">Cargando datos...</div>}
 
-      {!loading && !error && summary && <ModuleTable rows={summary.rows} grandTotal={summary.grandTotal} section={section} />}
+      {!loading && !error && view && <ModuleTable rows={view.rows} grandTotal={view.grandTotal} section={section} />}
 
       {summary && (
         <div className="mt-6 flex flex-wrap gap-4 text-sm">
@@ -99,4 +111,29 @@ function FooterBox({ label, children }: { label: string; children: React.ReactNo
       <div className="flex flex-1 items-center justify-center px-3">{children}</div>
     </div>
   );
+}
+
+function addRows(label: string, key: string, rows: SummaryRow[]): SummaryRow {
+  const totals: Record<string, number> = {};
+  for (const r of rows) for (const [k, v] of Object.entries(r.totals)) totals[k] = (totals[k] ?? 0) + v;
+  return {
+    key,
+    label,
+    totalIpress: rows.reduce((a, r) => a + r.totalIpress, 0),
+    totals,
+    totalModulos: rows.reduce((a, r) => a + r.totalModulos, 0),
+  };
+}
+
+// Deja solo las IPRESS cuyo total de modulos es el elegido y recalcula provincias y total.
+function filterByTotalModulos(summary: SummaryResponse, value: string) {
+  if (value === "Todas") return { rows: summary.rows, grandTotal: summary.grandTotal };
+  const target = Number(value);
+  const rows: SummaryRow[] = summary.rows
+    .map((p): SummaryRow | null => {
+      const children = (p.children ?? []).filter((c) => c.totalModulos === target);
+      return children.length ? { ...addRows(p.label, p.key, children), children } : null;
+    })
+    .filter((p): p is SummaryRow => p !== null);
+  return { rows, grandTotal: addRows("Total", "TOTAL", rows) };
 }
