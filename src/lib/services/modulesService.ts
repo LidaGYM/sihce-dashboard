@@ -29,7 +29,7 @@ interface RawRow {
 }
 
 function buildWhere(filters: SummaryFilters) {
-  const clauses: string[] = ["periodo = @periodo", EXCLUDED_IPRESS_SQL];
+  const clauses: string[] = ["periodo = @periodo", EXCLUDED_IPRESS_SQL.sqlserver];
   const params: Record<string, unknown> = { periodo: filters.periodo };
   if (filters.categoria && filters.categoria !== "Todas") {
     clauses.push("categoria = @categoria");
@@ -44,7 +44,7 @@ function buildWhere(filters: SummaryFilters) {
 
 async function fetchRowsSqlite(filters: SummaryFilters): Promise<RawRow[]> {
   const db = getDb();
-  const clauses: string[] = ["periodo = ?", EXCLUDED_IPRESS_SQL];
+  const clauses: string[] = ["periodo = ?", EXCLUDED_IPRESS_SQL.sqlite];
   const params: (string | number)[] = [filters.periodo];
   if (filters.categoria && filters.categoria !== "Todas") {
     clauses.push("categoria = ?");
@@ -153,12 +153,13 @@ export async function getFilters(): Promise<FiltersResponse> {
       `SELECT DISTINCT categoria FROM ${table} WHERE categoria IS NOT NULL ORDER BY categoria`
     );
     const ipressList = await querySqlServer<{ cod_ipress: string; ipress: string }>(
-      `SELECT DISTINCT cod_ipress, ipress FROM ${table} WHERE ${EXCLUDED_IPRESS_SQL} ORDER BY ipress`
+      `SELECT DISTINCT cod_ipress, ipress FROM ${table} WHERE ${EXCLUDED_IPRESS_SQL.sqlserver} ORDER BY ipress`
     );
+    // En la vista, periodo es INT: se normaliza a texto ("202608") como en el modo Excel.
     return {
-      periodos: periodos.map((p) => p.periodo),
+      periodos: periodos.map((p) => String(p.periodo)),
       categorias: categorias.map((c) => c.categoria),
-      ipressList,
+      ipressList: ipressList.map((i) => ({ cod_ipress: String(i.cod_ipress), ipress: i.ipress })),
     };
   }
 
@@ -172,7 +173,7 @@ export async function getFilters(): Promise<FiltersResponse> {
     )
     .all() as { categoria: string }[];
   const ipressList = db
-    .prepare(`SELECT DISTINCT cod_ipress, ipress FROM ipress_module_status WHERE ${EXCLUDED_IPRESS_SQL} ORDER BY ipress`)
+    .prepare(`SELECT DISTINCT cod_ipress, ipress FROM ipress_module_status WHERE ${EXCLUDED_IPRESS_SQL.sqlite} ORDER BY ipress`)
     .all() as { cod_ipress: string; ipress: string }[];
 
   return {
