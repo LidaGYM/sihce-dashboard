@@ -19,11 +19,12 @@ export default function ModulesView({ section }: { section: SectionDef }) {
   useEffect(() => {
     fetch("/api/filters")
       .then((r) => r.json())
-      .then((data: FiltersResponse) => {
+      .then((data: FiltersResponse & { error?: string }) => {
+        if (data.error) throw new Error(data.error);
         setFilters(data);
         if (data.periodos.length && !periodo) setPeriodo(defaultPeriodo(data.periodos));
       })
-      .catch(() => setError("No se pudieron cargar los filtros."));
+      .catch((err) => setError(`No se pudieron cargar los filtros: ${err.message ?? err}`));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

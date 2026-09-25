@@ -9,6 +9,8 @@ function getConfig(): sql.config {
     database: process.env.MSSQL_DATABASE,
     user: process.env.MSSQL_USER,
     password: process.env.MSSQL_PASSWORD,
+    // La vista puede tardar (lee HIS MINSA completo); el valor por defecto de mssql es 15 s.
+    requestTimeout: Number(process.env.MSSQL_REQUEST_TIMEOUT_MS || 120000),
     options: {
       encrypt: (process.env.MSSQL_ENCRYPT ?? "true") === "true",
       trustServerCertificate: (process.env.MSSQL_TRUST_SERVER_CERT ?? "true") === "true",
