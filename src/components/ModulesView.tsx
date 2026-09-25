@@ -54,7 +54,29 @@ export default function ModulesView({ section }: { section: SectionDef }) {
   );
 
   return (
-    <BrandLayout subtitle="Detalle de Modulos SIHCE Implementados" backHref="/">
+    <BrandLayout
+      subtitle="Detalle de Modulos SIHCE Implementados"
+      backHref="/"
+      footer={
+        summary && (
+          <div className="flex flex-wrap gap-4 text-sm">
+            <FooterBox label="Fuente de datos">
+              {summary.source === "sqlserver" ? "BD SQL Server" : "BD HIS-MINSA / BD SIHCE"}
+            </FooterBox>
+            <FooterBox label="Fecha de actualización">
+              {summary.updatedAt
+                ? new Date(summary.updatedAt).toLocaleDateString("es-PE", {
+                    weekday: "long",
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "N/D"}
+            </FooterBox>
+          </div>
+        )
+      }
+    >
       <div className="mb-4">
         <FilterBar
           filters={filters}
@@ -83,30 +105,13 @@ export default function ModulesView({ section }: { section: SectionDef }) {
 
       {!loading && !error && view && <ModuleTable rows={view.rows} grandTotal={view.grandTotal} section={section} />}
 
-      {summary && (
-        <div className="mt-6 flex flex-wrap gap-4 text-sm">
-          <FooterBox label="Fuente de datos">
-            {summary.source === "sqlserver" ? "BD SQL Server" : "BD HIS-MINSA / BD SIHCE"}
-          </FooterBox>
-          <FooterBox label="Fecha de actualización">
-            {summary.updatedAt
-              ? new Date(summary.updatedAt).toLocaleDateString("es-PE", {
-                  weekday: "long",
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                })
-              : "N/D"}
-          </FooterBox>
-        </div>
-      )}
     </BrandLayout>
   );
 }
 
 function FooterBox({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex min-w-[320px] flex-1 overflow-hidden rounded-sm border-2 border-sihce-navy">
+    <div className="flex min-w-[280px] flex-1 overflow-hidden rounded-sm border-2 border-sihce-navy">
       <div className="bg-sihce-navy px-3 py-1.5 uppercase text-white">{label}</div>
       <div className="flex flex-1 items-center justify-center px-3">{children}</div>
     </div>

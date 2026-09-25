@@ -21,14 +21,15 @@ function InstitutionLogos({ size = "" }: { size?: string }) {
 interface Props {
   subtitle: string; // segunda linea del banner, ej. "DETALLE DE MODULOS SIHCE IMPLEMENTADOS"
   backHref?: string;
+  footer?: React.ReactNode; // se muestra a la izquierda del logo SIHCE, en la misma fila
   children: React.ReactNode;
 }
 
-export default function BrandLayout({ subtitle, backHref, children }: Props) {
+export default function BrandLayout({ subtitle, backHref, footer, children }: Props) {
   return (
     // Pensado para ir embebido (iframe) en otra web: ocupa todo el ancho disponible,
     // sin cabecera propia ni margenes externos.
-    <div className="min-h-screen bg-white px-2 py-3 sm:px-4">
+    <div className="bg-white px-2 py-3 sm:px-4">
       <h1 className="pb-3 text-center text-xl font-bold text-sihce-title sm:text-3xl">
         Modulos SIHCE Implementados
       </h1>
@@ -62,8 +63,9 @@ export default function BrandLayout({ subtitle, backHref, children }: Props) {
 
         {children}
 
-        <div className="mt-4 flex justify-end">
-          <Logo src="/img/sihce.png" alt="SIHCE del MINSA" className="h-14" />
+        <div className="mt-4 flex flex-wrap items-center gap-4">
+          <div className="min-w-0 flex-1">{footer}</div>
+          <Logo src="/img/sihce.png" alt="SIHCE del MINSA" className="ml-auto h-14" />
         </div>
       </div>
     </div>

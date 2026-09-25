@@ -101,3 +101,33 @@ sql/create_view_example.sql Plantilla de vista SQL Server compatible
   Consulta Externa, Estrategias) reutilizando el mismo patron de
   filtros + tabla jerarquica.
 - Exportar la tabla a Excel/PDF desde el propio dashboard.
+
+## Embeber el dashboard
+
+Cada vista se puede embeber en otra web con un `iframe` (por ejemplo `/`,
+`/modulos-general` o `/modulos/consulta-externa`). El dashboard avisa su alto a
+la pagina contenedora con `postMessage`, asi el iframe crece o se achica al
+abrir/cerrar provincias sin mostrar una barra de desplazamiento propia.
+
+En la web contenedora:
+
+```html
+<iframe
+  id="sihce-dashboard"
+  src="https://tu-servidor/"
+  style="width: 100%; height: 900px; border: 0"
+></iframe>
+
+<script>
+  window.addEventListener("message", function (e) {
+    // Reemplaza por el dominio real donde corre el dashboard.
+    if (e.origin !== "https://tu-servidor") return;
+    if (e.data && e.data.type === "sihce-dashboard-height") {
+      document.getElementById("sihce-dashboard").style.height = e.data.height + "px";
+    }
+  });
+</script>
+```
+
+Los botones y la flecha de volver navegan dentro del iframe, y el alto se
+vuelve a ajustar en cada vista.
