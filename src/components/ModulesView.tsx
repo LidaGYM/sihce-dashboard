@@ -59,7 +59,7 @@ export default function ModulesView({ section }: { section: SectionDef }) {
       backHref="/"
       footer={
         summary && (
-          <div className="flex flex-wrap gap-4 text-sm">
+          <div className="flex flex-wrap gap-4 text-xs">
             <FooterBox label="Fuente de datos">
               {summary.source === "sqlserver" ? "BD SQL Server" : "BD HIS-MINSA / BD SIHCE"}
             </FooterBox>
@@ -111,9 +111,9 @@ export default function ModulesView({ section }: { section: SectionDef }) {
 
 function FooterBox({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex min-w-[280px] flex-1 overflow-hidden rounded-sm border-2 border-sihce-navy">
-      <div className="bg-sihce-navy px-3 py-1.5 uppercase text-white">{label}</div>
-      <div className="flex flex-1 items-center justify-center px-3">{children}</div>
+    <div className="flex min-w-[260px] flex-1 overflow-hidden rounded-sm border border-sihce-navy">
+      <div className="bg-sihce-navy px-2.5 py-1 uppercase leading-tight text-white">{label}</div>
+      <div className="flex flex-1 items-center justify-center px-2.5 leading-tight">{children}</div>
     </div>
   );
 }
