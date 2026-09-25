@@ -8,11 +8,11 @@ const buttonClass =
 export default function Home() {
   return (
     <BrandLayout subtitle="Modulos SIHCE Implementados">
-      <div className="px-4 py-8 sm:px-12">
+      <div className="px-2 py-4 sm:px-8">
         <h2 className="max-w-xl text-4xl font-medium leading-tight text-black">Modulos Implementados en el SIHCE</h2>
-        <p className="mt-12 text-4xl font-medium text-gray-500">REGION ICA</p>
+        <p className="mt-8 text-4xl font-medium text-gray-500">REGION ICA</p>
 
-        <div className="mt-16 flex flex-col gap-6">
+        <div className="mt-10 flex flex-col gap-6">
           <Link href="/modulos-general" className={`${buttonClass} bg-sihce-green hover:brightness-110`}>
             Modulos en General
           </Link>

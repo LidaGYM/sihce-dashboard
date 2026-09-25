@@ -26,24 +26,21 @@ interface Props {
 
 export default function BrandLayout({ subtitle, backHref, children }: Props) {
   return (
-    <div className="min-h-screen">
-      <header className="flex items-center justify-between bg-white px-6 py-4 shadow-sm">
-        <InstitutionLogos />
-        <Logo src="/img/icatec.png" alt="ICATEC" className="h-10" />
-      </header>
-
-      <h1 className="py-6 text-center text-2xl font-bold text-sihce-title sm:text-3xl">
+    // Pensado para ir embebido (iframe) en otra web: ocupa todo el ancho disponible,
+    // sin cabecera propia ni margenes externos.
+    <div className="min-h-screen bg-white px-2 py-3 sm:px-4">
+      <h1 className="pb-3 text-center text-xl font-bold text-sihce-title sm:text-3xl">
         Modulos SIHCE Implementados
       </h1>
 
-      <div className="mx-auto max-w-7xl rounded-2xl bg-white px-4 pb-6 shadow-sm sm:px-8">
+      <div className="w-full">
         <div className="flex h-3">
           <div className="flex-[1] bg-sihce-green" />
           <div className="flex-[2] bg-sihce-yellow" />
           <div className="flex-[1] bg-sihce-green" />
         </div>
 
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-b-lg px-2 py-3 shadow-md">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-b-lg px-2 py-3 shadow-md">
           <InstitutionLogos />
           <div className="flex-1 text-center text-base font-medium uppercase leading-snug text-gray-800 sm:text-xl">
             <div>SIHCE-MINSA Primer Nivel de Atención - Región Ica</div>
@@ -65,7 +62,7 @@ export default function BrandLayout({ subtitle, backHref, children }: Props) {
 
         {children}
 
-        <div className="mt-6 flex justify-end">
+        <div className="mt-4 flex justify-end">
           <Logo src="/img/sihce.png" alt="SIHCE del MINSA" className="h-14" />
         </div>
       </div>
