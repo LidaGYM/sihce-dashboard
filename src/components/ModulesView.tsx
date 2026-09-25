@@ -21,7 +21,7 @@ export default function ModulesView({ section }: { section: SectionDef }) {
       .then((r) => r.json())
       .then((data: FiltersResponse) => {
         setFilters(data);
-        if (data.periodos.length && !periodo) setPeriodo(data.periodos[0]);
+        if (data.periodos.length && !periodo) setPeriodo(defaultPeriodo(data.periodos));
       })
       .catch(() => setError("No se pudieron cargar los filtros."));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -141,4 +141,13 @@ function filterByTotalModulos(summary: SummaryResponse, value: string) {
     })
     .filter((p): p is SummaryRow => p !== null);
   return { rows, grandTotal: addRows("Total", "TOTAL", rows) };
+}
+
+// Periodo inicial: el mes anterior al actual (YYYYMM) si tiene datos; si no, el ultimo con datos.
+function defaultPeriodo(periodos: string[]): string {
+  const now = new Date();
+  const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevKey = `${prev.getFullYear()}${String(prev.getMonth() + 1).padStart(2, "0")}`;
+  if (periodos.includes(prevKey)) return prevKey;
+  return periodos.reduce((max, p) => (Number(p) > Number(max) ? p : max), periodos[0]);
 }
