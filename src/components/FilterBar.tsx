@@ -6,9 +6,10 @@ interface Props {
   filters: FiltersResponse | null;
   periodo: string;
   categoria: string;
-  ipress: string;
-  showIpress?: boolean;
-  onChange: (next: { periodo?: string; categoria?: string; ipress?: string }) => void;
+  calificadas: string;
+  calificadasOptions: number[];
+  showCalificadas?: boolean;
+  onChange: (next: { periodo?: string; categoria?: string; calificadas?: string }) => void;
 }
 
 function FilterBox({ label, children }: { label: string; children: React.ReactNode }) {
@@ -22,20 +23,33 @@ function FilterBox({ label, children }: { label: string; children: React.ReactNo
 
 const selectClass = "w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-600";
 
-export default function FilterBar({ filters, periodo, categoria, ipress, showIpress = true, onChange }: Props) {
+export default function FilterBar({
+  filters,
+  periodo,
+  categoria,
+  calificadas,
+  calificadasOptions,
+  showCalificadas = true,
+  onChange,
+}: Props) {
   return (
     <div className="flex flex-wrap gap-4">
-      {showIpress && (
-      <FilterBox label="Ipress calificadas">
-        <select className={selectClass} value={ipress} onChange={(e) => onChange({ ipress: e.target.value })}>
-          <option value="Todas">Todas</option>
-          {filters?.ipressList.map((i) => (
-            <option key={i.cod_ipress} value={i.cod_ipress}>
-              {i.ipress}
-            </option>
-          ))}
-        </select>
-      </FilterBox>
+      {showCalificadas && (
+        // Filtra las IPRESS por su total de modulos SIHCE (columna "Modulos SIHCE").
+        <FilterBox label="Ipress calificadas">
+          <select
+            className={selectClass}
+            value={calificadas}
+            onChange={(e) => onChange({ calificadas: e.target.value })}
+          >
+            <option value="Todas">Todas</option>
+            {calificadasOptions.map((n) => (
+              <option key={n} value={String(n)}>
+                {n}
+              </option>
+            ))}
+          </select>
+        </FilterBox>
       )}
 
       <FilterBox label="Periodo">
