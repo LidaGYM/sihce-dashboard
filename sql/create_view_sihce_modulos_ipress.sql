@@ -112,7 +112,7 @@ SELECT
 
     -- Modulos Administrativo (sin Id_Sistema propio en HIS MINSA -> se toman tal cual de SIHCE_MOD_HISMINSA)
     CASE WHEN ISNULL(h.mod_refcon, 0)       > 0 THEN 1 ELSE 0 END AS mod_refcon,
-    CASE WHEN ISNULL(h.mod_refer_contr, 0)  > 0 THEN 1 ELSE 0 END AS mod_referencias,
+    0                                                           AS mod_referencias,  -- se deja en 0 por decision funcional
     CASE WHEN ISNULL(h.mod_gestion, 0)      > 0 THEN 1 ELSE 0 END AS mod_gestion,
     CASE WHEN ISNULL(h.mod_citas, 0)        > 0 THEN 1 ELSE 0 END AS mod_citas,
     CASE WHEN ISNULL(h.mod_triaje, 0)       > 0 THEN 1 ELSE 0 END AS mod_triaje,
